@@ -75,7 +75,10 @@ async function openEpisode(slug,title){
   const sel=$('#tdQuality');qualities.forEach((q,i)=>{if(q.proxyUrl){const o=document.createElement('option');o.value=q.proxyUrl;o.textContent=q.label||q.resolution||('Kualitas '+(i+1));sel.appendChild(o)}});
   function attach(src){if(hls){hls.destroy();hls=null}video.pause();video.removeAttribute('src');video.load();if(video.canPlayType('application/vnd.apple.mpegurl')){video.src=src;video.load()}else if(window.Hls&&Hls.isSupported()){hls=new Hls({enableWorker:true,lowLatencyMode:false,backBufferLength:30});hls.loadSource(src);hls.attachMedia(video);hls.on(Hls.Events.ERROR,(_,data)=>{if(data.fatal){area.querySelector('.note').textContent='Stream gagal dimuat ('+data.details+'). Coba pilih kualitas lain atau muat ulang.'}})}else{throw Error('Browser ini tidak mendukung HLS. Coba Chrome atau Safari terbaru.')} }
   attach(source);sel.onchange=()=>{try{attach(sel.value||source)}catch(e){area.querySelector('.note').textContent=e.message}};$('#tdReload').onclick=()=>{try{attach(sel.value||source)}catch(e){area.querySelector('.note').textContent=e.message}};
- }catch(err){area.innerHTML='<div class="status">Pemutar tidak bisa disiapkan: '+esc(err.message)+'<br><button class="btn" style="margin-top:10px" onclick="openEpisode('+JSON.stringify(slug)+','+JSON.stringify(title)+')">Coba lagi</button></div>'}
+ }catch(err){
+  area.innerHTML='<div class="status">Pemutar tidak bisa disiapkan: '+esc(err.message)+'<br><button class="btn" id="tdRetryStream" style="margin-top:10px">Coba lagi</button></div>';
+  const retry=$('#tdRetryStream');if(retry)retry.onclick=()=>openEpisode(slug,title);
+ }
 }
 function closeModal(){$('#modal').classList.remove('show')}$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
 loadHome();loadLatest();loadCatalog();
