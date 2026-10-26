@@ -56,8 +56,10 @@ async function openDetail(slug,title){
    if(!eps.length)throw Error('Sumber tidak mengembalikan daftar episode.');
    area.innerHTML='<h3>Daftar episode</h3><div class="episodes">'+eps.map((ep,i)=>'<button class="episode" data-ep="'+esc(slugOf(ep))+'">'+esc(pick(ep,['title','name','episodeTitle','episode','number'],'Episode '+(i+1)))+'</button>').join('')+'</div><div id="episodeDetail"></div>';
    area.querySelectorAll('[data-ep]').forEach((b,i)=>b.onclick=()=>openEpisode(b.dataset.ep||slug,title+' · '+b.textContent));
-  }catch(err){area.innerHTML='<div class="status">Episode gagal dimuat: '+esc(err.message)+'<br><button class="btn" style="margin-top:10px" onclick="this.parentElement.parentElement.querySelector(\'#showEpisodes\')?.click()">Coba lagi</button></div>'}
- };
+  }catch(err){
+   area.innerHTML='<div class="status">Pemutar tidak bisa disiapkan: '+esc(err.message)+'<br><button class="btn" id="tdRetry" style="margin-top:10px">Coba lagi</button></div>';
+   const retry=$('#tdRetry');if(retry)retry.onclick=()=>openEpisode(slug,title);
+  };
 }
 async function openEpisode(slug,title){
  const area=$('#episodeDetail');if(!area)return;
