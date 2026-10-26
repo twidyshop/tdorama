@@ -310,12 +310,31 @@ def create_app() -> Flask:
                     )
             chosen = match[0]
 
-        try:
-            data = stream.resolve_full(chosen["embed"], proxy_base=_base_path())
-        except ValueError as exc:
-            return fail(str(exc), 400, hint="Server mungkin bukan penyedia yang didukung.")
-        except UpstreamError as exc:
-            return fail(str(exc), getattr(exc, "status", 502))
+        # Coba mirror secara berurutan. Mirror pertama kadang bukan Vidara
+        # atau tidak memiliki filecode yang didukung; jangan langsung gagal
+        # jika episode menyediakan mirror lain yang kompatibel.
+        data = None
+        errors = []
+        candidates = [chosen] + [m for m in mirrors if m is not chosen]
+        for mirror in candidates:
+            try:
+                data = stream.resolve_full(mirror["embed"], proxy_base=_base_path())
+                chosen = mirror
+                break
+            except ValueError as exc:
+                errors.append(str(exc))
+                continue
+            except UpstreamError as exc:
+                errors.append(str(exc))
+                continue
+
+        if data is None:
+            message = errors[0] if errors else "Tidak ada mirror streaming yang kompatibel."
+            return fail(
+                message,
+                400,
+                hint="Semua mirror episode sudah dicoba, tetapi belum ada yang dapat di-resolve sebagai stream HLS. Periksa /episode/<slug> untuk melihat server yang tersedia.",
+            )
 
         data["episode"] = {
             "title": detail.get("title"),
