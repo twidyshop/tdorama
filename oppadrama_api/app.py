@@ -66,51 +66,8 @@ def create_app() -> Flask:
 
     @app.get("/")
     def index():
-        base = _base_path()
-        endpoints = [
-            "GET /home",
-            "GET /home/<section>",
-            "GET /series",
-            "GET /series/filters",
-            "GET /series/latest",
-            "GET /series/list",
-            "GET /series/<slug>",
-            "GET /series/<slug>/episodes",
-            "GET /episode/<slug>",
-            "GET /episode/<slug>/stream",
-            "GET /stream?url=",
-            "GET /stream/playlist?u=",
-            "GET /stream/seg?u=",
-            "GET /search?q=",
-            "GET /genres",
-            "GET /genre/<slug>",
-            "GET /country/<slug>",
-            "GET /cast/<slug>",
-            "GET /director/<slug>",
-            "GET /tag/<slug>",
-            "GET /network/<slug>",
-            "GET /season/<slug>",
-            "GET /studio/<slug>",
-            "GET /domains",
-            "GET /health",
-        ]
-        return jsonify(
-            {
-                "success": True,
-                "data": {
-                    "name": "oppadrama-api",
-                    "version": __version__,
-                    "source": config.BASE_URL,
-                    "description": (
-                        "REST API scraper OPPADRAMA — drama, series & film sub indo."
-                    ),
-                    "basePath": base,
-                    "docs": f"{base}/docs",
-                    "openapi": f"{base}/openapi.json",
-                    "endpoints": endpoints,
-                },
-            }
-        )
+        """Beranda web TDORAMA."""
+        return send_from_directory(_static_dir(), "home.html")
 
     @app.get("/health")
     def health():
